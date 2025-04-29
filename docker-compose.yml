@@ -44,6 +44,9 @@ services:
       - DB_POSTGRESDB_USER=${POSTGRES_USER}
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_POSTGRESDB_SSL_ENABLED=true
+    volumes:
+      - n8n_data:/home/node/.n8n
 
 volumes:
   caddy_data:
+  n8n_data:
