@@ -1,22 +1,26 @@
-version: "3.7"
-
 networks:
   n8n-network:
     driver: bridge
 
 services:
-  caddy:
-    image: caddy:latest
+  traefik:
+    image: traefik:v3
+    restart: unless-stopped
+    environment: # see https://doc.traefik.io/traefik/reference/static-configuration/env/ for reference on each variable used below
+      # see https://github.com/traefik/traefik/issues/3870#issuecomment-501566619 for explanation of this variable
+      - TZ=${GENERIC_TIMEZONE}
+    command: 
+      - --api.insecure=true 
+      - --providers.docker 
+      - --accesslog=true
+    labels:
+      - "traefik.enable=false"
+    ports: # HTTPS is handled by Cloudflare DNS Proxy, so we only need HTTP here
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - n8n-network
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - caddy_data:/data
-      - ./caddy_config:/config
-      - ./caddy_config/Caddyfile:/etc/caddy/Caddyfile
     depends_on:
       - n8n
 
@@ -27,6 +31,9 @@ services:
     restart: always
     ports:
       - 5678:5678
+    labels:
+    - "traefik.enable=true"
+    - "traefik.http.routers.n8n.rule=Host(`${SUBDOMAIN}.${DOMAIN_NAME}`)"
     environment:
       - N8N_HOST=${SUBDOMAIN}.${DOMAIN_NAME}
       - N8N_PORT=5678
