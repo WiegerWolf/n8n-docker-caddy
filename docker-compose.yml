@@ -46,7 +46,9 @@ services:
       - DB_POSTGRESDB_SSL_ENABLED=true
     volumes:
       - n8n_data:/home/node/.n8n
+      - puppeteer_data:/home/node/.cache/puppeteer
 
 volumes:
   caddy_data:
   n8n_data:
+  puppeteer_data:
