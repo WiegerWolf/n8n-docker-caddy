@@ -1,57 +1,77 @@
-# n8n with Docker Compose and Caddy
-
-This repository provides a configuration to run [n8n](https://n8n.io/), a workflow automation tool, using Docker Compose. It includes Caddy as a reverse proxy for automatic HTTPS.
-
-## Prerequisites
-
-*   [Docker](https://docs.docker.com/get-docker/)
-*   [Docker Compose](https://docs.docker.com/compose/install/) (usually included with Docker Desktop)
-*   A domain name pointed to the server where you will run this setup.
-
-## Setup
-
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-repository-url>
-    cd <repository-directory>
-    ```
-
-2.  **Configure Environment Variables:**
-    *   Copy the example `.env` file or ensure your `.env` file exists.
-    *   Review and update the variables in the `.env` file:
-        *   `DOMAIN_NAME`: Your top-level domain (e.g., `example.com`).
-        *   `SUBDOMAIN`: The subdomain for n8n (e.g., `n8n`). The final URL will be `n8n.example.com`.
-        *   `GENERIC_TIMEZONE`: Your preferred timezone (e.g., `Europe/Amsterdam`).
-        *   `SSL_EMAIL`: The email address for Let's Encrypt SSL certificate registration.
-        *   `DB_POSTGRESDB_HOST`, `DB_POSTGRESDB_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: Credentials for your PostgreSQL database. This setup uses [Neon.tech](https://neon.tech/) serverless PostgreSQL. You will need to create a database instance on Neon and obtain the connection details. **Ensure you change the default password!**
-
-3.  **Configure Caddy:**
-    *   Edit `caddy_config/Caddyfile`.
-    *   Replace `n8n.example.com` with your actual n8n domain (`${SUBDOMAIN}.${DOMAIN_NAME}`).
-
-4.  **Start the services:**
-    ```bash
-    docker-compose up -d
-    ```
-    This command will build (if necessary) and start the n8n and Caddy containers in detached mode. Caddy will automatically obtain an SSL certificate for your domain.
-
-## Accessing n8n
-
-Once the containers are running, you can access your n8n instance at `https://${SUBDOMAIN}.${DOMAIN_NAME}`.
-
-## Persistent Data
-
-*   **Caddy:** Configuration and SSL certificates are stored in the `caddy_data` named volume and the `caddy_config` directory bind-mount.
-*   **n8n:** n8n data (workflows, credentials, etc.) is stored in the configured PostgreSQL database. Ensure your database has appropriate backup procedures.
-
-## Stopping the services
-
-To stop the containers:
-```bash
-docker-compose down
-```
-
-To stop and remove the volumes (use with caution, as this deletes Caddy's data):
-```bash
-docker-compose down -v
-```
+# n8n Deployment with Docker Compose and Traefik                                                                           
+                                                                                                                           
+This project provides a Docker Compose setup to deploy n8n, using Traefik as a reverse proxy and PostgreSQL as the database
+backend. It's configured to use an external PostgreSQL database (like Neon.tech) and assumes HTTPS is handled externally   
+(e.g., via Cloudflare DNS Proxy).                                                                                          
+                                                                                                                           
+## Prerequisites                                                                                                           
+                                                                                                                           
+*   **Docker:** Install Docker from [docker.com](https://www.docker.com/get-started).                                      
+*   **Docker Compose:** Usually included with Docker Desktop. If not, follow the installation guide                        
+[here](https://docs.docker.com/compose/install/).                                                                          
+*   **Domain Name:** You need a domain name pointed to your server's IP address.                                           
+*   **External PostgreSQL Database:** A running PostgreSQL instance accessible from your server (e.g., Neon.tech, AWS RDS).
+                                                                                                                           
+## Configuration                                                                                                           
+                                                                                                                           
+1.  **Clone the repository (if you haven't already):**                                                                     
+    ```bash                                                                                                                
+    git clone <your-repository-url>                                                                                        
+    cd <repository-directory>                                                                                              
+    ```                                                                                                                    
+                                                                                                                           
+2.  **Create the environment file:**                                                                                       
+    Copy the example environment file to `.env`:                                                                           
+    ```bash                                                                                                                
+    cp .env.example .env                                                                                                   
+    ```                                                                                                                    
+                                                                                                                           
+3.  **Edit `.env`:**                                                                                                       
+    Open the `.env` file and replace the placeholder values with your actual configuration:                                
+    *   `DOMAIN_NAME`: Your top-level domain (e.g., `example.com`).                                                        
+    *   `SUBDOMAIN`: The subdomain for n8n (e.g., `n8n`, resulting in `n8n.example.com`).                                  
+    *   `GENERIC_TIMEZONE`: Your timezone (e.g., `Europe/Amsterdam`).                                                      
+    *   `SSL_EMAIL`: Email for SSL certificate registration (though Traefik isn't configured for Let's Encrypt here, it's  
+good practice).                                                                                                            
+    *   `DB_POSTGRESDB_HOST`: Hostname of your PostgreSQL database.                                                        
+    *   `DB_POSTGRESDB_PORT`: Port of your PostgreSQL database (usually `5432`).                                           
+    *   `POSTGRES_USER`: Username for your PostgreSQL database.                                                            
+    *   `POSTGRES_PASSWORD`: Password for your PostgreSQL database.                                                        
+    *   `POSTGRES_DB`: Name of the database to use for n8n.                                                                
+                                                                                                                           
+## Usage                                                                                                                   
+                                                                                                                           
+1.  **Start the services:**                                                                                                
+    Run the following command in the project directory:                                                                    
+    ```bash                                                                                                                
+    docker-compose up -d                                                                                                   
+    ```                                                                                                                    
+    This will build (if necessary) and start the n8n and Traefik containers in detached mode.                              
+                                                                                                                           
+2.  **Access n8n:**                                                                                                        
+    Open your web browser and navigate to `http://<SUBDOMAIN>.<DOMAIN_NAME>` (e.g., `http://n8n.example.com`). Traefik will
+route the request to the n8n container.                                                                                    
+    *Note: This setup expects HTTPS to be handled externally. If accessing directly via HTTP, ensure your external         
+proxy/firewall allows it.*                                                                                                 
+                                                                                                                           
+3.  **Stop the services:**                                                                                                 
+    To stop the containers, run:                                                                                           
+    ```bash                                                                                                                
+    docker-compose down                                                                                                    
+    ```                                                                                                                    
+    This stops and removes the containers but preserves the volumes (`n8n_data`, `puppeteer_data`). To remove volumes as   
+well, use `docker-compose down -v`.                                                                                        
+                                                                                                                           
+## Components                                                                                                              
+                                                                                                                           
+*   **n8n:** The workflow automation tool. Data is persisted in the `n8n_data` volume. Puppeteer cache is stored in        
+`puppeteer_data`.                                                                                                          
+*   **Traefik:** A modern reverse proxy and load balancer. It automatically discovers the n8n service and routes traffic   
+based on the hostname defined in the labels. The Traefik dashboard can be accessed (insecurely) for debugging if needed,   
+typically via port 8080 if exposed, but it's not exposed by default in this configuration.                                 
+*   **PostgreSQL:** The database backend for n8n. This configuration uses an *external* PostgreSQL database specified in   
+the `.env` file.                                                                                                           
+                                                                                                                           
+## License                                                                                                                 
+                                                                                                                           
+Refer to the LICENSE file. 
