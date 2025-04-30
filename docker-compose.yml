@@ -40,6 +40,16 @@ services:
     volumes:
       - n8n_data:/home/node/.n8n
 
+  browserless:
+    image: ghcr.io/browserless/chromium
+    networks:
+      - n8n-network
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    environment:
+      - CONCURRENT=10
+      - TOKEN=${BROWSERLESS_TOKEN}
 volumes:
   caddy_data:
   caddy_config:
