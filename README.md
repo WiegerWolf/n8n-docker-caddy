@@ -1,57 +1,53 @@
-# n8n with Docker Compose and Caddy
-
-This repository provides a configuration to run [n8n](https://n8n.io/), a workflow automation tool, using Docker Compose. It includes Caddy as a reverse proxy for automatic HTTPS.
-
-## Prerequisites
-
-*   [Docker](https://docs.docker.com/get-docker/)
-*   [Docker Compose](https://docs.docker.com/compose/install/) (usually included with Docker Desktop)
-*   A domain name pointed to the server where you will run this setup.
-
-## Setup
-
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-repository-url>
-    cd <repository-directory>
+# n8n with Caddy and PostgreSQL using Docker Compose                                                                                                                                                   
+                                                                                                                                                                                                       
+This project provides a Docker Compose setup to run [n8n](https://n8n.io/), a workflow automation tool, behind a [Caddy](https://caddyserver.com/) reverse proxy with automatic HTTPS, using a         
+[PostgreSQL](https://www.postgresql.org/) database for persistence.                                                                                                                                    
+                                                                                                                                                                                                       
+## Prerequisites                                                                                                                                                                                       
+                                                                                                                                                                                                       
+*   [Docker](https://docs.docker.com/get-docker/)                                                                                                                                                      
+*   [Docker Compose](https://docs.docker.com/compose/install/)                                                                                                                                         
+                                                                                                                                                                                                       
+## Configuration                                                                                                                                                                                       
+                                                                                                                                                                                                       
+1.  **Copy the example environment file:**                                                                                                                                                             
+    
+    ```bash                                                                                                                                                                                            
+    cp .env.example .env                                                                                                                                                                               
     ```
 
-2.  **Configure Environment Variables:**
-    *   Copy the example `.env` file or ensure your `.env` file exists.
-    *   Review and update the variables in the `.env` file:
-        *   `DOMAIN_NAME`: Your top-level domain (e.g., `example.com`).
-        *   `SUBDOMAIN`: The subdomain for n8n (e.g., `n8n`). The final URL will be `n8n.example.com`.
-        *   `GENERIC_TIMEZONE`: Your preferred timezone (e.g., `Europe/Amsterdam`).
-        *   `SSL_EMAIL`: The email address for Let's Encrypt SSL certificate registration.
-        *   `DB_POSTGRESDB_HOST`, `DB_POSTGRESDB_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: Credentials for your PostgreSQL database. This setup uses [Neon.tech](https://neon.tech/) serverless PostgreSQL. You will need to create a database instance on Neon and obtain the connection details. **Ensure you change the default password!**
+2.  **Edit the `.env` file:**                                                                                                                                                                          
+    Open the `.env` file in a text editor and replace the placeholder values with your actual configuration:                                                                                           
+    *   `DOMAIN_NAME`: Your top-level domain (e.g., `example.com`).                                                                                                                                    
+    *   `SUBDOMAIN`: The subdomain for n8n (e.g., `n8n`, resulting in `n8n.example.com`).                                                                                                              
+    *   `GENERIC_TIMEZONE`: Your preferred timezone (e.g., `Europe/Berlin`). Defaults to `America/New_York` if commented out or removed.                                                               
+    *   `SSL_EMAIL`: The email address for Let's Encrypt registration.                                                                                                                                 
+    *   `DB_POSTGRESDB_HOST`: Your PostgreSQL database host.                                                                                                                                           
+    *   `DB_POSTGRESDB_PORT`: Your PostgreSQL database port (usually `5432`).                                                                                                                          
+    *   `DB_POSTGRESDB_USER`: Your PostgreSQL database username.                                                                                                                                       
+    *   `DB_POSTGRESDB_PASSWORD`: Your PostgreSQL database password.                                                                                                                                   
+    *   `DB_POSTGRESDB_DATABASE`: The name of the PostgreSQL database for n8n.                                                                                                                         
+                                                                                                                                                                                                       
+    *Note:* The example `.env` file includes placeholders suitable for a database hosted on [Neon.tech](https://neon.tech/), but you can use any PostgreSQL provider. Ensure                           
+`DB_POSTGRESDB_SSL_ENABLED=true` is set correctly based on your database provider's requirements (it's enabled by default in `docker-compose.yml` for Neon).                                           
+                                                                                                                                                                                                       
+## Usage                                                                                                                                                                                               
+                                                                                                                                                                                                       
+1.  **Start the services:**                                                                                                                                                                            
+    Run the following command in the project's root directory:                                                                                                                                         
+    
+    ```bash                                                                                                                                                                                            
+    docker-compose up -d                                                                                                                                                                               
+    ```                                                                                                                                                                                                
+    
+    This will build (if necessary) and start the `n8n` and `caddy` services in detached mode.                                                                                                          
+                                                                                                                                                                                                       
+2.  **Access n8n:**                                                                                                                                                                                    
+    Once the containers are running, you can access your n8n instance in your web browser at `https://<SUBDOMAIN>.<DOMAIN_NAME>` (e.g., `https://n8n.example.com`).                                    
+                                                                                                                                                                                                       
+3.  **Stop the services:**                                                                                                                                                                             
+    To stop the running containers:  
 
-3.  **Configure Caddy:**
-    *   Edit `caddy_config/Caddyfile`.
-    *   Replace `n8n.example.com` with your actual n8n domain (`${SUBDOMAIN}.${DOMAIN_NAME}`).
-
-4.  **Start the services:**
-    ```bash
-    docker-compose up -d
-    ```
-    This command will build (if necessary) and start the n8n and Caddy containers in detached mode. Caddy will automatically obtain an SSL certificate for your domain.
-
-## Accessing n8n
-
-Once the containers are running, you can access your n8n instance at `https://${SUBDOMAIN}.${DOMAIN_NAME}`.
-
-## Persistent Data
-
-*   **Caddy:** Configuration and SSL certificates are stored in the `caddy_data` named volume and the `caddy_config` directory bind-mount.
-*   **n8n:** n8n data (workflows, credentials, etc.) is stored in the configured PostgreSQL database. Ensure your database has appropriate backup procedures.
-
-## Stopping the services
-
-To stop the containers:
-```bash
-docker-compose down
-```
-
-To stop and remove the volumes (use with caution, as this deletes Caddy's data):
-```bash
-docker-compose down -v
-```
+    ```bash                                                                                                                                                                                            
+    docker-compose down                                                                                                                                                                                
+    ```                                                                                                                                                                                                
