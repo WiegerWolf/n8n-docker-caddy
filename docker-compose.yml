@@ -9,9 +9,9 @@ services:
     environment: # see https://doc.traefik.io/traefik/reference/static-configuration/env/ for reference on each variable used below
       # see https://github.com/traefik/traefik/issues/3870#issuecomment-501566619 for explanation of this variable
       - TZ=${GENERIC_TIMEZONE}
-    command: 
-      - --api.insecure=true 
-      - --providers.docker 
+    command:
+      - --api.insecure=true
+      - --providers.docker
       - --accesslog=true
     labels:
       - "traefik.enable=false"
