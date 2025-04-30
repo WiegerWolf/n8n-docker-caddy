@@ -54,14 +54,10 @@ This project provides a Docker Compose setup to run [n8n](https://n8n.io/), a wo
 *   **PostgreSQL:** Uses an external PostgreSQL database for persistent workflow storage (configuration via `.env`).                                                                                   
 *   **Docker Volumes:** Persists Caddy configuration/data and n8n data across container restarts.                                                                                                      
                                                                                                                                                                                                        
-## Files                                                                                                                                                                                               
-                                                                                                                                                                                                       
-*   `docker-compose.yml`: Defines the services (`n8n`, `caddy`), networks, and volumes.                                                                                                                
-*   `Caddyfile`: Configuration for the Caddy reverse proxy.                                                                                                                                            
-*   `.env.example`: Example environment variables file. Copy this to `.env` and fill in your details.                                                                                                  
-*   `.gitignore`: Specifies intentionally untracked files that Git should ignore (e.g., `.env`).                                                                                                       
-*   `LICENSE`: Project license information.                                                                                                                                                            
-                                                                                                                                                                                                       
-## License                                                                                                                                                                                             
-                                                                                                                                                                                                       
-This project is licensed under the terms specified in the [LICENSE](LICENSE) file.
+## Notes
+
+To install puppeteer, you need the following:
+
+```bash
+docker compose exec n8n npx puppeteer browsers install chrome
+```
