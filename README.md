@@ -11,9 +11,11 @@ This project provides a Docker Compose setup to run [n8n](https://n8n.io/), a wo
 ## Configuration                                                                                                                                                                                       
                                                                                                                                                                                                        
 1.  **Copy the example environment file:**                                                                                                                                                             
+    
     ```bash                                                                                                                                                                                            
     cp .env.example .env                                                                                                                                                                               
-    ```                                                                                                                                                                                                
+    ```
+
 2.  **Edit the `.env` file:**                                                                                                                                                                          
     Open the `.env` file in a text editor and replace the placeholder values with your actual configuration:                                                                                           
     *   `DOMAIN_NAME`: Your top-level domain (e.g., `example.com`).                                                                                                                                    
@@ -33,31 +35,19 @@ This project provides a Docker Compose setup to run [n8n](https://n8n.io/), a wo
                                                                                                                                                                                                        
 1.  **Start the services:**                                                                                                                                                                            
     Run the following command in the project's root directory:                                                                                                                                         
+    
     ```bash                                                                                                                                                                                            
     docker-compose up -d                                                                                                                                                                               
     ```                                                                                                                                                                                                
+    
     This will build (if necessary) and start the `n8n` and `caddy` services in detached mode.                                                                                                          
                                                                                                                                                                                                        
 2.  **Access n8n:**                                                                                                                                                                                    
     Once the containers are running, you can access your n8n instance in your web browser at `https://<SUBDOMAIN>.<DOMAIN_NAME>` (e.g., `https://n8n.example.com`).                                    
                                                                                                                                                                                                        
 3.  **Stop the services:**                                                                                                                                                                             
-    To stop the running containers:                                                                                                                                                                    
+    To stop the running containers:  
+
     ```bash                                                                                                                                                                                            
     docker-compose down                                                                                                                                                                                
     ```                                                                                                                                                                                                
-                                                                                                                                                                                                       
-## Features                                                                                                                                                                                            
-                                                                                                                                                                                                       
-*   **n8n:** Runs the latest n8n image.                                                                                                                                                                
-*   **Caddy:** Acts as a reverse proxy, automatically obtaining and renewing Let's Encrypt SSL certificates for your configured domain.                                                                
-*   **PostgreSQL:** Uses an external PostgreSQL database for persistent workflow storage (configuration via `.env`).                                                                                   
-*   **Docker Volumes:** Persists Caddy configuration/data and n8n data across container restarts.                                                                                                      
-                                                                                                                                                                                                       
-## Notes
-
-To install puppeteer, you need the following:
-
-```bash
-docker compose exec n8n npx puppeteer browsers install chrome
-```
