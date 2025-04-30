@@ -31,7 +31,7 @@ backend. It's configured to use an external PostgreSQL database (like Neon.tech)
     *   `DOMAIN_NAME`: Your top-level domain (e.g., `example.com`).                                                        
     *   `SUBDOMAIN`: The subdomain for n8n (e.g., `n8n`, resulting in `n8n.example.com`).                                  
     *   `GENERIC_TIMEZONE`: Your timezone (e.g., `Europe/Amsterdam`).                                                      
-good practice).                                                                                                            
+*   `GENERIC_TIMEZONE`: Your timezone (e.g., `Europe/Amsterdam`).
     *   `DB_POSTGRESDB_HOST`: Hostname of your PostgreSQL database.                                                        
     *   `DB_POSTGRESDB_PORT`: Port of your PostgreSQL database (usually `5432`).                                           
     *   `POSTGRES_USER`: Username for your PostgreSQL database.                                                            
